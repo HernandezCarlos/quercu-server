@@ -1,19 +1,22 @@
-import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
-import { PrismaService } from './prisma.service';
-import { PropertyType } from '@prisma/client';
-import { CreatePropertyTypeDto, UpdatePropertyTypeDto } from '../dto/property-type.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { ErrorManager } from 'src/utils/error-manager';
+import { Prisma, PropertyType } from '@prisma/client';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { CreatePropertyTypeDto, UpdatePropertyTypeDto } from './dto';
 
 @Injectable()
 export class PropertyTypesService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createPropertyTypeDto: CreatePropertyTypeDto): Promise<PropertyType> {
+  async create(
+    createPropertyTypeDto: CreatePropertyTypeDto,
+  ): Promise<PropertyType> {
     try {
       return await this.prisma.propertyType.create({
         data: createPropertyTypeDto,
       });
     } catch (error) {
-      throw new InternalServerErrorException('Failed to create property type');
+      throw ErrorManager.createSignatureError('Failed to create property type');
     }
   }
 
@@ -21,7 +24,9 @@ export class PropertyTypesService {
     try {
       return await this.prisma.propertyType.findMany();
     } catch (error) {
-      throw new InternalServerErrorException('Failed to retrieve property types');
+      throw ErrorManager.createSignatureError(
+        'Failed to retrieve property types',
+      );
     }
   }
 
@@ -35,21 +40,33 @@ export class PropertyTypesService {
       }
       return propertyType;
     } catch (error) {
-      throw new InternalServerErrorException(`Failed to retrieve property type with ID ${id}`);
+      throw ErrorManager.createSignatureError(
+        `Failed to retrieve property type with ID ${id}`,
+      );
     }
   }
 
-  async update(id: number, updatePropertyTypeDto: UpdatePropertyTypeDto): Promise<PropertyType> {
+  async update(
+    id: number,
+    updatePropertyTypeDto: UpdatePropertyTypeDto,
+  ): Promise<PropertyType> {
     try {
       return await this.prisma.propertyType.update({
         where: { id },
         data: updatePropertyTypeDto,
       });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-        throw new NotFoundException(`Property type with ID ${id} not found`);
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw ErrorManager.createSignatureError(
+          `Property type with ID ${id} not found`,
+        );
       }
-      throw new InternalServerErrorException(`Failed to update property type with ID ${id}`);
+      throw ErrorManager.createSignatureError(
+        `Failed to update property type with ID ${id}`,
+      );
     }
   }
 
@@ -59,10 +76,17 @@ export class PropertyTypesService {
         where: { id },
       });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-        throw new NotFoundException(`Property type with ID ${id} not found`);
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw ErrorManager.createSignatureError(
+          `Property type with ID ${id} not found`,
+        );
       }
-      throw new InternalServerErrorException(`Failed to delete property type with ID ${id}`);
+      throw ErrorManager.createSignatureError(
+        `Failed to delete property type with ID ${id}`,
+      );
     }
   }
 }

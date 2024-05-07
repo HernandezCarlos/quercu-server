@@ -1,18 +1,33 @@
-import { IsInt, IsNotEmpty, IsString, Min } from 'class-validator';
+import {
+  IsOptional,
+  IsNotEmpty,
+  IsString,
+  IsDecimal,
+  IsInt,
+} from 'class-validator';
 
 export class CreatePropertyDto {
   @IsNotEmpty()
   @IsString()
-  name: string;
+  number: string;
+
+  @IsNotEmpty()
+  @IsString()
+  address: string;
+
+  @IsNotEmpty()
+  @IsDecimal()
+  area: number;
+
+  @IsOptional()
+  @IsDecimal()
+  constructionArea?: number;
 
   @IsNotEmpty()
   @IsInt()
-  @Min(1)
   ownerId: number;
 
   @IsNotEmpty()
   @IsInt()
-  @Min(1)
-  typeId: number;
+  propertyTypeId: number;
 }
-

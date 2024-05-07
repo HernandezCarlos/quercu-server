@@ -1,6 +1,7 @@
-import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Property } from '@prisma/client';
+import { ErrorManager } from 'src/utils/error-manager';
+import { Prisma, Property } from '@prisma/client';
 import { CreatePropertyDto, UpdatePropertyDto } from './dto';
 
 @Injectable()
@@ -13,7 +14,7 @@ export class PropertiesService {
         data: createPropertyDto,
       });
     } catch (error) {
-      throw new InternalServerErrorException('Failed to create property');
+      throw ErrorManager.createSignatureError('Failed to create property');
     }
   }
 
@@ -21,7 +22,7 @@ export class PropertiesService {
     try {
       return await this.prisma.property.findMany();
     } catch (error) {
-      throw new InternalServerErrorException('Failed to retrieve properties');
+      throw ErrorManager.createSignatureError('Failed to retrieve properties');
     }
   }
 
@@ -35,21 +36,33 @@ export class PropertiesService {
       }
       return property;
     } catch (error) {
-      throw new InternalServerErrorException(`Failed to retrieve property with ID ${id}`);
+      throw ErrorManager.createSignatureError(
+        `Failed to retrieve property with ID ${id}`,
+      );
     }
   }
 
-  async update(id: number, updatePropertyDto: UpdatePropertyDto): Promise<Property> {
+  async update(
+    id: number,
+    updatePropertyDto: UpdatePropertyDto,
+  ): Promise<Property> {
     try {
       return await this.prisma.property.update({
         where: { id },
         data: updatePropertyDto,
       });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-        throw new NotFoundException(`Property with ID ${id} not found`);
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw ErrorManager.createSignatureError(
+          `Property with ID ${id} not found`,
+        );
       }
-      throw new InternalServerErrorException(`Failed to update property with ID ${id}`);
+      throw ErrorManager.createSignatureError(
+        `Failed to update property with ID ${id}`,
+      );
     }
   }
 
@@ -59,10 +72,17 @@ export class PropertiesService {
         where: { id },
       });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-        throw new NotFoundException(`Property with ID ${id} not found`);
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw ErrorManager.createSignatureError(
+          `Property with ID ${id} not found`,
+        );
       }
-      throw new InternalServerErrorException(`Failed to delete property with ID ${id}`);
+      throw ErrorManager.createSignatureError(
+        `Failed to delete property with ID ${id}`,
+      );
     }
   }
 }

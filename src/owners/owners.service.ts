@@ -1,6 +1,7 @@
-import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Owner } from '@prisma/client';
+import { ErrorManager } from 'src/utils/error-manager';
+import { Owner, Prisma } from '@prisma/client';
 import { CreateOwnerDto, UpdateOwnerDto } from './dto';
 
 @Injectable()
@@ -13,7 +14,7 @@ export class OwnersService {
         data: createOwnerDto,
       });
     } catch (error) {
-      throw new InternalServerErrorException('Failed to create owner');
+      throw ErrorManager.createSignatureError('Failed to create owner');
     }
   }
 
@@ -21,7 +22,7 @@ export class OwnersService {
     try {
       return await this.prisma.owner.findMany();
     } catch (error) {
-      throw new InternalServerErrorException('Failed to retrieve owners');
+      throw ErrorManager.createSignatureError('Failed to retrieve owners');
     }
   }
 
@@ -35,7 +36,9 @@ export class OwnersService {
       }
       return owner;
     } catch (error) {
-      throw new InternalServerErrorException(`Failed to retrieve owner with ID ${id}`);
+      throw ErrorManager.createSignatureError(
+        `Failed to retrieve owner with ID ${id}`,
+      );
     }
   }
 
@@ -46,10 +49,17 @@ export class OwnersService {
         data: updateOwnerDto,
       });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-        throw new NotFoundException(`Owner with ID ${id} not found`);
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw ErrorManager.createSignatureError(
+          `Owner with ID ${id} not found`,
+        );
       }
-      throw new InternalServerErrorException(`Failed to update owner with ID ${id}`);
+      throw ErrorManager.createSignatureError(
+        `Failed to update owner with ID ${id}`,
+      );
     }
   }
 
@@ -59,10 +69,17 @@ export class OwnersService {
         where: { id },
       });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-        throw new NotFoundException(`Owner with ID ${id} not found`);
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw ErrorManager.createSignatureError(
+          `Owner with ID ${id} not found`,
+        );
       }
-      throw new InternalServerErrorException(`Failed to delete owner with ID ${id}`);
+      throw ErrorManager.createSignatureError(
+        `Failed to delete owner with ID ${id}`,
+      );
     }
   }
 }

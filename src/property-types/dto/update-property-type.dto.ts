@@ -5,5 +5,5 @@ import { IsOptional, IsString } from 'class-validator';
 export class UpdatePropertyTypeDto extends PartialType(CreatePropertyTypeDto) {
   @IsOptional()
   @IsString()
-  typeName?: string;
+  description?: string;
 }

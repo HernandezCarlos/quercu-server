@@ -14,23 +14,30 @@ datasource db {
 }
 
 model Property {
-  id          Int       @id @default(autoincrement())
-  name        String
-  ownerId     Int
-  typeId      Int
-  owner       Owner     @relation(fields: [ownerId], references: [id])
-  propertyType PropertyType @relation(fields: [typeId], references: [id])
+  id                  Int          @id @default(autoincrement())
+  propertyTypeId      Int
+  ownerId             Int
+  number              String
+  address             String
+  area                Decimal
+  constructionArea    Decimal?
+  owner               Owner        @relation(fields: [ownerId], references: [id])
+  propertyType        PropertyType @relation(fields: [propertyTypeId], references: [id])
 }
 
 model PropertyType {
-  id       Int       @id @default(autoincrement())
-  typeName String
-  properties Property[]
+  id           Int        @id @default(autoincrement())
+  description  String
+  properties   Property[]
 }
 
 model Owner {
-  id         Int       @id @default(autoincrement())
-  name       String
-  properties Property[]
+  id                    Int       @id @default(autoincrement())
+  name                  String
+  telephone             String
+  email                 String?
+  identificationNumber  String
+  address               String?
+  properties            Property[]
 }
 
